@@ -45,4 +45,12 @@ asm volatile ("ori x0,x1,0");
 asm volatile ("ori x0,x1,0");
 asm volatile ("_jtest:     ");
 asm volatile ("lw x28,4(x29)");
+// ------ 补充缺失的 5 条指令 ------
+asm volatile ("beq x27,x28,_btest"); 
+asm volatile ("ori x0,x1,0");
+asm volatile ("ori x0,x1,0");
+asm volatile ("ori x0,x1,0");
+asm volatile ("_btest:     ");
+asm volatile ("lw x30,4(x29)");
+// ---------------------------------
 }

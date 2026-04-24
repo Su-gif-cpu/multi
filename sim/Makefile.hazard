@@ -1,0 +1,114 @@
+# Makefile for hazard regression tests A/B/C
+# Use: make -f Makefile.hazard [a|b|c|all]
+
+SEED = 1
+#COVERAGE= -cm line+cond+fsm+tgl -cm_hier rv_hier
+COVERAGE=
+
+default: all
+
+all: a b c
+
+a: compile_a run_a
+
+a_debug: compile_a_debug run_a_debug
+
+b: compile_b run_b
+
+b_debug: compile_b_debug run_b_debug
+
+c: compile_c run_c
+
+run_a:
+	./simv +vcs+loopdetect +vcs+loopreport -l hazard_a.log +ntb_random_seed=$(SEED) $(COVERAGE)
+
+run_a_debug:
+	./simv +vcs+loopdetect +vcs+loopreport -l hazard_a.log +ntb_random_seed=$(SEED) $(COVERAGE)
+
+run_b:
+	./simv +vcs+loopdetect +vcs+loopreport -l hazard_b.log +ntb_random_seed=$(SEED) $(COVERAGE)
+
+run_b_debug:
+	./simv +vcs+loopdetect +vcs+loopreport -l hazard_b.log +ntb_random_seed=$(SEED) $(COVERAGE)
+
+run_c:
+	./simv +vcs+loopdetect +vcs+loopreport -l hazard_c.log +ntb_random_seed=$(SEED) $(COVERAGE)
+
+compile_a:
+	vcs \
+	-f ./files_A.f \
+	-timescale=1ns/1ps \
+	-full64 +vc +v2k -sverilog -debug_all \
+	-LDFLAGS -Wl,--no-as-needed \
+	-cm line+cond+tgl+fsm \
+	-P ${VERDI_HOME}/share/PLI/VCS/LINUX64/novas.tab \
+	${VERDI_HOME}/share/PLI/VCS/LINUX64/pli.a \
+	-timescale=1ns/1ps +notimingchecks +nospecify \
+	| tee hazard_a_compile.log
+
+compile_a_debug:
+	vcs \
+	-f ./files_A_debug.f \
+	-timescale=1ns/1ps \
+	-full64 +vc +v2k -sverilog -debug_all \
+	-LDFLAGS -Wl,--no-as-needed \
+	-cm line+cond+tgl+fsm \
+	-P ${VERDI_HOME}/share/PLI/VCS/LINUX64/novas.tab \
+	${VERDI_HOME}/share/PLI/VCS/LINUX64/pli.a \
+	-timescale=1ns/1ps +notimingchecks +nospecify \
+	| tee hazard_a_debug_compile.log
+
+compile_b:
+	vcs \
+	-f ./files_B.f \
+	-timescale=1ns/1ps \
+	-full64 +vc +v2k -sverilog -debug_all \
+	-LDFLAGS -Wl,--no-as-needed \
+	-cm line+cond+tgl+fsm \
+	-P ${VERDI_HOME}/share/PLI/VCS/LINUX64/novas.tab \
+	${VERDI_HOME}/share/PLI/VCS/LINUX64/pli.a \
+	-timescale=1ns/1ps +notimingchecks +nospecify \
+	| tee hazard_b_compile.log
+
+compile_b_debug:
+	vcs \
+	-f ./files_B.f \
+	-timescale=1ns/1ps \
+	-full64 +vc +v2k -sverilog -debug_all \
+	-LDFLAGS -Wl,--no-as-needed \
+	-cm line+cond+tgl+fsm \
+	-P ${VERDI_HOME}/share/PLI/VCS/LINUX64/novas.tab \
+	${VERDI_HOME}/share/PLI/VCS/LINUX64/pli.a \
+	-timescale=1ns/1ps +notimingchecks +nospecify \
+	| tee hazard_b_debug_compile.log
+
+compile_c:
+	vcs \
+	-f ./files_C.f \
+	-timescale=1ns/1ps \
+	-full64 +vc +v2k -sverilog -debug_all \
+	-LDFLAGS -Wl,--no-as-needed \
+	-cm line+cond+tgl+fsm \
+	-P ${VERDI_HOME}/share/PLI/VCS/LINUX64/novas.tab \
+	${VERDI_HOME}/share/PLI/VCS/LINUX64/pli.a \
+	-timescale=1ns/1ps +notimingchecks +nospecify \
+	| tee hazard_c_compile.log
+
+clean:
+	rm -rf simv* csrc* *.tmp *.vpd *.key *.log *.fsdb novas.fsdb* verdiLog stack.info*
+
+help:
+	@echo "==============================================================================="
+	@echo " "
+	@echo " USAGE: make -f Makefile.hazard target <SEED=xxx> "
+	@echo " "
+	@echo " ------------------------- Test TARGETS --------------------------- "
+	@echo " all     => compile and run A, B, C hazard tests. "
+	@echo " a       => compile and run hazard A (load-use). "
+	@echo " a_debug => compile and run hazard A with detailed trace. "
+	@echo " b       => compile and run hazard B (load-branch). "
+	@echo " b_debug => compile and run hazard B with enhanced debugging. "
+	@echo " c       => compile and run hazard C (WAW + forwarding). "
+	@echo " clean   => remove intermediate sim and log files. "
+	@echo " "
+	@echo "==============================================================================="
