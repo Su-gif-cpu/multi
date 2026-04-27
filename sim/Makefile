@@ -42,4 +42,4 @@ help:
 	@echo "==============================================================================="
 
 verdi:
-	verdi -autoalias -2012 -nologo -f files.f &
+	verdi -autoalias -2012 -nologo -f files.f -ssf novas.fsdb &

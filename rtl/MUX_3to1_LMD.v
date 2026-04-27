@@ -20,19 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "ctrl_signal_def.v"
-module MUX_3to1_LMD(X, Y, Z, control, out);
-    input [31:0] X;             //临时寄存器ALU0中的内容
-    input [31:0] Y;             //临时寄存器LMD中的内容
-    input [31:0] Z;             //PC+4
-    input [1:0] control;        //选择控制信号
-    output reg [31:0] out;      //输出选择结果
+module MUX_3to1_LMD(X, ALU_result_bypass, Y, Z, control, out);
+    input [31:0] X;                 // 弃用
+    input [31:0] ALU_result_bypass; // 使用实时信号
+    input [31:0] Y;
+    input [31:0] Z;
+    input [1:0] control;
+    output reg [31:0] out;
 
-    always @ (X or Y or Z or control) begin
+    always @ (*) begin
         case(control)
-            `WDSel_FromALU : out = X;      //选择X
-            `WDSel_FromMEM : out = Y;      //选择Y
-            `WDSel_FromPC  : out = Z;      //选择Z
-            `WDSel_Else    : out = 0;
+            2'b00 : out = ALU_result_bypass;
+            2'b01 : out = Y;
+            2'b10 : out = Z;
+            2'b11 : out = 0;
         endcase
     end
 endmodule

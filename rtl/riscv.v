@@ -95,9 +95,9 @@ module riscv(clk, rst);
         .control(RegSel), .out(WR)
     );
 
-    // 实例化 MUX_3to1_LMD
+    // 实例化 MUX_3to1_LMD （新增 ALU_result_bypass）
     MUX_3to1_LMD U_MUX_3to1_LMD (
-        .X(ALU_result), .Y(DR_out), .Z(PC),
+        .X(ALU_result_r), .ALU_result_bypass(ALU_result), .Y(DR_out), .Z(PCA4),
         .control(WDSel), .out(WD)
     );
 
@@ -116,14 +116,14 @@ module riscv(clk, rst);
         .imm_in(Imm12), .ExtSel(ExtSel), .imm_out(Imm32)
     );
 
-    // 实例化 MUX_2to1_A
+    // 实例化 MUX_2to1_A （新增 RD1_bypass）
     MUX_2to1_A U_MUX_2to1_A (
-        .X(RD1_r), .Y(32'h0), .control(ALUSrcA), .out(A)
+        .X(RD1_r), .RD1_bypass(RD1), .Y(32'h0), .control(ALUSrcA), .out(A)
     );
 
-    // 实例化 MUX_3to1_B
+    // 实例化 MUX_3to1_B （新增 RD2_bypass）
     MUX_3to1_B U_MUX_3to1_B (
-        .X(RD2_r), .Y(Imm32), .Z(Offset), .control(ALUSrcB), .out(B)
+        .X(RD2_r), .RD2_bypass(RD2), .Y(Imm32), .Z(Offset), .control(ALUSrcB), .out(B)
     );
 
     // 实例化 ALU
@@ -136,9 +136,11 @@ module riscv(clk, rst);
         .clk(clk), .rst(rst), .in_data(ALU_result), .out_data(ALU_result_r)
     );
 
-    // 实例化 DM
+    // 实例化 DM （新增 Addr_bypass 和 WD_bypass）
     DM U_DM (
-        .Addr(ALU_result_r[11:2]), .WD(RD2_r), .DMCtrl(DMCtrl), .clk(clk), .RD(RD)
+        .Addr(ALU_result_r[11:2]), .Addr_bypass(ALU_result[11:2]), 
+        .WD(RD2_r), .WD_bypass(RD2), 
+        .DMCtrl(DMCtrl), .clk(clk), .RD(RD)
     );
 
     //// 实例化 Flopr
