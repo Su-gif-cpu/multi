@@ -45,12 +45,23 @@ asm volatile ("ori x0,x1,0");
 asm volatile ("ori x0,x1,0");
 asm volatile ("_jtest:     ");
 asm volatile ("lw x28,4(x29)");
-// ------ 补充缺失的 5 条指令 ------
 asm volatile ("beq x27,x28,_btest"); 
 asm volatile ("ori x0,x1,0");
 asm volatile ("ori x0,x1,0");
 asm volatile ("ori x0,x1,0");
 asm volatile ("_btest:     ");
 asm volatile ("lw x30,4(x29)");
-// ---------------------------------
+// 测试 JALR
+asm volatile ("_jalr_test: ");
+asm volatile ("addi x6, x0, 20");   // 将某个偏移量或地址基址存入 x6
+// 假设你想跳过接下来的两条 nop 指令
+// 我们可以先用 JAL 获取当前PC附近的地址，再用 JALR 相对跳
+asm volatile ("jal x7, _get_pc");   // x7 得到返回地址
+asm volatile ("_get_pc: ");
+asm volatile ("addi x7, x7, 16");   // x7 加上偏移，指向 _jalr_target
+asm volatile ("jalr x8, x7, 0");    // 此处PC为 A+8。跳转到 x7(即A+20)。执行后 x8 = (A+8)+4 = A+12。
+asm volatile ("addi x10, x10, 1");  // 此处PC为 A+12。
+asm volatile ("addi x10, x10, 1");  // 此处PC为 A+16。
+asm volatile ("_jalr_target: ");
+asm volatile ("addi x9, x8, 0");    // 此处PC为 A+20。验证点
 }

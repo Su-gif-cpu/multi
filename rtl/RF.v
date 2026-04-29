@@ -12,11 +12,13 @@ module RF(
     output [31:0] RD2       // 读取寄存器2数据
 );
 
-    reg [31:0] register [0:31]; // 32个32位寄存器
+    reg [31:0] register [1:31]; // 31个32位寄存器
+
+    //  r0 不需要分配寄存器，直接用线网表示即可
+    wire [31:0] r0 = 32'h0000_0000;
 
     // Bug RF1 修复：x0 每周期强制清零
     always @(posedge clk) begin
-        register[0] <= 32'h0;  // x0 恒为 0
         // 在上升沿时钟信号时，如果写入寄存器地址不为0且写使能信号为1，则写入数据到指定寄存器
         if ((WR != 0) && (RFWrite == 1)) begin
             register[WR] <= WD;
@@ -30,8 +32,8 @@ module RF(
         end
     end
 
-    // 异步读，无 MUX（x0 由同步逻辑保证恒为 0）
-    assign RD1 = register[RR1];
-    assign RD2 = register[RR2];
+    // 异步读：如果地址是0，直接返回硬连线的 r0 (全0)；否则从数组读取
+    assign RD1 = (RR1 == 5'd0) ? r0 : register[RR1];
+    assign RD2 = (RR2 == 5'd0) ? r0 : register[RR2];
 
 endmodule

@@ -24,7 +24,8 @@
 module riscv(clk, rst);
     input clk, rst;
 
-    wire RFWrite, DMCtrl, PCWrite, IRWrite, InsMemRW, ExtSel, zero, ALUSrcA;
+    wire RFWrite, PCWrite, IRWrite, InsMemRW, ExtSel, zero, ALUSrcA;
+    wire [1:0] DMCtrl; 
     wire [1:0] ALUSrcB;
     wire [1:0] NPCOp, WDSel, RegSel;
     wire [3:0] ALUOp;
@@ -138,9 +139,8 @@ module riscv(clk, rst);
 
     // 实例化 DM （新增 Addr_bypass 和 WD_bypass）
     DM U_DM (
-        .Addr(ALU_result_r[11:2]), .Addr_bypass(ALU_result[11:2]), 
-        .WD(RD2_r), .WD_bypass(RD2), 
-        .DMCtrl(DMCtrl), .clk(clk), .RD(RD)
+        .Addr(ALU_result_r[11:2]), .WD(RD2_r), .DMCtrl(DMCtrl), .clk(clk), .RD(RD),
+        .Addr_bypass(ALU_result[11:2]), .WD_bypass(RD2) // 新增旁路接口，绕过 r 寄存器延迟
     );
 
     //// 实例化 Flopr

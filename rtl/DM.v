@@ -1,9 +1,13 @@
+`timescale 1ns / 1ps
 `include "ctrl_signal_def.v"
+
+`timescale 1ns / 1ps
+
 module DM( Addr, Addr_bypass, WD, WD_bypass, clk, DMCtrl, RD);
-    input [11:2] Addr;          // 弃用
-    input [11:2] Addr_bypass;   // 实时的ALU地址
-    input [31:0] WD;            // 弃用
-    input [31:0] WD_bypass;     // 实时的要写入的数据(RD2)
+    input [11:2] Addr;
+    input [11:2] Addr_bypass;
+    input [31:0] WD;
+    input [31:0] WD_bypass;
     input clk;
     input [1:0] DMCtrl;
     output reg [31:0] RD;
@@ -11,7 +15,9 @@ module DM( Addr, Addr_bypass, WD, WD_bypass, clk, DMCtrl, RD);
     reg [31:0] memory[0:1023];
 
     always @(posedge clk) begin
-        if (DMCtrl == 2'b10) memory[Addr_bypass] <= WD_bypass; // 同步写
-        if (DMCtrl == 2'b01) RD <= memory[Addr_bypass];        // 同步读
+        if (DMCtrl == 2'b10) begin
+            memory[Addr_bypass] <= WD_bypass; 
+            $display("[DM READ]  Time: %0t | Addr: %0d | Data: %h", $time, Addr_bypass, memory[Addr_bypass]);
+        end
     end
 endmodule
